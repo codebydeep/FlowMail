@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, FormEvent } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { gsap } from 'gsap'
 import { aiApi } from '@/services/aiApi'
 import { useAgentStore, AgentMessage, AgentTask } from '@/store/agentStore'

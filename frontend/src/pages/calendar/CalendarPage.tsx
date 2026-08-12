@@ -4,9 +4,9 @@ import { gsap } from 'gsap'
 import { calendarApi, CalendarEvent, CreateEventPayload } from '@/services/calendarApi'
 import {
   format, startOfWeek, addDays, isSameDay, startOfDay,
-  addWeeks, subWeeks, parseISO, isToday as isTodayFn,
+  addWeeks, subWeeks, parseISO,
 } from 'date-fns'
-import { staggerContainer, staggerItem, modalVariants, overlayVariants, fadeUp } from '@/lib/motion'
+import { modalVariants, overlayVariants, fadeUp } from '@/lib/motion'
 import toast from 'react-hot-toast'
 
 const HOURS = Array.from({ length: 11 }, (_, i) => i + 8) // 8 AM – 6 PM

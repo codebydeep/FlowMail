@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { gsap } from 'gsap'
 import { authApi } from '@/services/authApi'
 import { useAuthStore } from '@/store/authStore'
-import { fadeUp, staggerContainer, staggerItem } from '@/lib/motion'
+import { staggerContainer, staggerItem } from '@/lib/motion'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
 
