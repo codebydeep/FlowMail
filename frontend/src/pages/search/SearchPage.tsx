@@ -1,5 +1,5 @@
 import { useState, FormEvent, useRef, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { gsap } from 'gsap'
 import { emailApi } from '@/services/emailApi'
 import { EmailSummary } from '@/store/emailStore'

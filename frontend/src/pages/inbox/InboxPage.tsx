@@ -6,7 +6,7 @@ import { emailApi } from '@/services/emailApi'
 import { useEmailStore } from '@/store/emailStore'
 import { EmailCard } from '@/components/EmailCard'
 import { ComposeModal } from '@/components/ComposeModal'
-import { staggerContainer, staggerItem, fadeUp } from '@/lib/motion'
+import { staggerContainer, fadeUp } from '@/lib/motion'
 import clsx from 'clsx'
 
 const TABS = [

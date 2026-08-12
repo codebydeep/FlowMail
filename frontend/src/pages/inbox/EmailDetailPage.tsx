@@ -7,7 +7,7 @@ import { aiApi, EmailAnalysis } from '@/services/aiApi'
 import { useEmailStore, EmailDetail } from '@/store/emailStore'
 import { MeetingDetectedBanner } from '@/components/MeetingDetectedBanner'
 import { ComposeModal } from '@/components/ComposeModal'
-import { slideRight, fadeUp, staggerContainer, staggerItem } from '@/lib/motion'
+import { slideRight, staggerContainer, staggerItem } from '@/lib/motion'
 import { formatDistanceToNow, format } from 'date-fns'
 import clsx from 'clsx'
 
