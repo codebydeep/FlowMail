@@ -1,0 +1,49 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: email-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/flowmail_email?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: flowmail
+    password: flowmail_pass
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: flowmail_redis
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: email-service
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.flowmail.*"
+      auto-offset-reset: earliest
+
+# Internal service URLs (called directly, not through gateway)
+services:
+  integration-url: http://localhost:8085
+  ai-url: http://localhost:8084
+
+cache:
+  email-inbox-ttl-seconds: 120  # 2 min cache for inbox
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

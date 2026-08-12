@@ -1,0 +1,209 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: flowmail-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: flowmail_root
+      MYSQL_USER: flowmail
+      MYSQL_PASSWORD: deepansh
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docs/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - flowmail-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: flowmail-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass flowmail_redis
+    networks:
+      - flowmail-net
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: flowmail-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - flowmail-net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: flowmail-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - flowmail-net
+
+  api-gateway:
+    build:
+      context: ./backend/api-gateway
+      dockerfile: Dockerfile
+    container_name: flowmail-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - auth-service
+      - email-service
+      - calendar-service
+      - ai-service
+      - integration-service
+      - notification-service
+    networks:
+      - flowmail-net
+
+  auth-service:
+    build:
+      context: ./backend/auth-service
+      dockerfile: Dockerfile
+    container_name: flowmail-auth
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/flowmail_auth
+      - SPRING_DATASOURCE_USERNAME=flowmail
+      - SPRING_DATASOURCE_PASSWORD=flowmail_pass
+      - SPRING_REDIS_HOST=redis
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - flowmail-net
+
+  email-service:
+    build:
+      context: ./backend/email-service
+      dockerfile: Dockerfile
+    container_name: flowmail-email
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/flowmail_email
+      - SPRING_DATASOURCE_USERNAME=flowmail
+      - SPRING_DATASOURCE_PASSWORD=flowmail_pass
+      - SPRING_REDIS_HOST=redis
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+    depends_on:
+      - mysql
+      - redis
+      - kafka
+    networks:
+      - flowmail-net
+
+  calendar-service:
+    build:
+      context: ./backend/calendar-service
+      dockerfile: Dockerfile
+    container_name: flowmail-calendar
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/flowmail_calendar
+      - SPRING_DATASOURCE_USERNAME=flowmail
+      - SPRING_DATASOURCE_PASSWORD=flowmail_pass
+      - SPRING_REDIS_HOST=redis
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+    depends_on:
+      - mysql
+      - redis
+      - kafka
+    networks:
+      - flowmail-net
+
+  ai-service:
+    build:
+      context: ./backend/ai-service
+      dockerfile: Dockerfile
+    container_name: flowmail-ai
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/flowmail_ai
+      - SPRING_DATASOURCE_USERNAME=flowmail
+      - SPRING_DATASOURCE_PASSWORD=flowmail_pass
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - AI_API_KEY=${AI_API_KEY}
+    depends_on:
+      - mysql
+      - kafka
+    networks:
+      - flowmail-net
+
+  integration-service:
+    build:
+      context: ./backend/integration-service
+      dockerfile: Dockerfile
+    container_name: flowmail-integration
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/flowmail_integration
+      - SPRING_DATASOURCE_USERNAME=flowmail
+      - SPRING_DATASOURCE_PASSWORD=flowmail_pass
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - CORSAIR_API_KEY=${CORSAIR_API_KEY}
+    depends_on:
+      - mysql
+      - kafka
+    networks:
+      - flowmail-net
+
+  notification-service:
+    build:
+      context: ./backend/notification-service
+      dockerfile: Dockerfile
+    container_name: flowmail-notification
+    ports:
+      - "8086:8086"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_REDIS_HOST=redis
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+    depends_on:
+      - redis
+      - kafka
+    networks:
+      - flowmail-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: flowmail-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - flowmail-net
+
+volumes:
+  mysql_data:
+
+networks:
+  flowmail-net:
+    driver: bridge

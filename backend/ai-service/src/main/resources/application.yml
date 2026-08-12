@@ -1,0 +1,43 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: ai-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/flowmail_ai?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: flowmail
+    password: flowmail_pass
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: ai-service
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.flowmail.*"
+      auto-offset-reset: earliest
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+ai:
+  provider: ${AI_PROVIDER:openai}           # openai | gemini
+  api-key: ${AI_API_KEY:your-key-here}
+  model: gpt-4o-mini                        # cheap but capable for classification
+  max-tokens: 1000
+
+services:
+  calendar-url: http://localhost:8083
+  integration-url: http://localhost:8085
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

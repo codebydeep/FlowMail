@@ -1,0 +1,34 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: integration-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/flowmail_integration?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: flowmail
+    password: flowmail_pass
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+corsair:
+  api-key: ${CORSAIR_API_KEY:your-corsair-key}
+  base-url: ${CORSAIR_BASE_URL:https://api.getcorsair.com}
+
+# Internal endpoints for other services to call
+services:
+  email-url: http://localhost:8082
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

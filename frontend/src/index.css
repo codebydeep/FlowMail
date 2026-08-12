@@ -1,0 +1,105 @@
+/* ── Inter Variable font ──────────────────────────────────────────────────── */
+@import url('https://rsms.me/inter/inter.css');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    font-family: 'Inter var', 'Inter', system-ui, sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: #08090a;
+    color: #e4e4e7;
+  }
+
+  body {
+    background: #08090a;
+    overflow: hidden;   /* dashboard never scrolls at body level */
+  }
+
+  /* ── Scrollbar ─────────────────────────────────────────────────────────── */
+  ::-webkit-scrollbar        { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track  { background: transparent; }
+  ::-webkit-scrollbar-thumb  { background: rgba(255,255,255,0.10); border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.20); }
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.10) transparent;
+}
+
+@layer components {
+  /* ── Glass card ─────────────────────────────────────────────────────────── */
+  .glass {
+    @apply bg-[rgba(255,255,255,0.04)] backdrop-blur-xl
+           border border-[rgba(255,255,255,0.08)]
+           shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.08)];
+  }
+
+  /* ── Subtle inner highlight on glass cards ─────────────────────────────── */
+  .glass-highlight::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(255,255,255,0.07) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* ── Glow ring on focus ─────────────────────────────────────────────────── */
+  .glow-ring {
+    @apply outline-none ring-2 ring-brand-500/40 ring-offset-2 ring-offset-canvas;
+  }
+
+  /* ── Input base ─────────────────────────────────────────────────────────── */
+  .input {
+    @apply w-full px-3 py-2.5 rounded-xl text-sm text-zinc-100 placeholder-zinc-600
+           bg-canvas-200 border border-[rgba(255,255,255,0.07)]
+           transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-500/40;
+  }
+
+  /* ── Buttons ────────────────────────────────────────────────────────────── */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium
+           bg-brand-600 hover:bg-brand-500 text-white
+           shadow-glow-sm hover:shadow-glow
+           transition-all duration-200
+           disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm
+           text-zinc-400 hover:text-zinc-100 hover:bg-[rgba(255,255,255,0.06)]
+           transition-all duration-150;
+  }
+
+  /* ── Priority badges ────────────────────────────────────────────────────── */
+  .badge-high   { @apply inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-red-500/15    text-red-400    border border-red-500/20; }
+  .badge-medium { @apply inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-amber-500/15  text-amber-400  border border-amber-500/20; }
+  .badge-low    { @apply inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-zinc-800      text-zinc-500   border border-zinc-700; }
+
+  /* ── Ambient glow orbs (decorative backgrounds) ─────────────────────────── */
+  .orb {
+    @apply absolute rounded-full blur-3xl opacity-20 pointer-events-none;
+  }
+}
+
+/* ── GSAP / Framer initial states ─────────────────────────────────────────── */
+.gsap-reveal   { opacity: 0; transform: translateY(20px); }
+.gsap-reveal-x { opacity: 0; transform: translateX(-24px); }
+
+/* ── Shimmer skeleton ─────────────────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 25%,
+    rgba(255,255,255,0.08) 50%,
+    rgba(255,255,255,0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
